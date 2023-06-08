@@ -132,6 +132,7 @@ class Img_SR_Model(object):
         if output.ndim == 3:
             output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))  # CHW-RGB to HCW-BGR
         output = (output * 255.0).round().astype(np.uint8)  # float32 to uint8
+        print(f'Swin_shape:{output.shape}')
         # compress image quality to 150kb
         # compress_output, compress_path, inter_path = self.compress_PIL(output, h_lr, w_lr, type=img_type)
         # os.remove(compress_path)
