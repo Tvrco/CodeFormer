@@ -218,7 +218,7 @@ if __name__ == '__main__':
             face_helper.read_image(img)
             # get face landmarks for each face
             num_det_faces = face_helper.get_face_landmarks_5(
-                only_center_face=args.only_center_face, resize=640, eye_dist_threshold=5)
+                only_center_face=args.only_center_face, resize=640, eye_dist_threshold=2)
             print(f'\tdetect {num_det_faces} faces')
             # align and warp each face
             face_helper.align_warp_face()
