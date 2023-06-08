@@ -46,7 +46,7 @@ def set_realesrgan():
         pre_pad=0,
         half=use_half
     )
-    upsampler = Img_SR_Model('./swinsr/config.yaml')
+    upsampler = Img_SR_Model(config_dir = './swinsr/config.yaml',scale = 4)
 
 
     if not gpu_is_available():  # CPU
