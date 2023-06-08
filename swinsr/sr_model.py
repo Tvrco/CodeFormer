@@ -23,11 +23,11 @@ seed = 42
 torch.manual_seed(seed)
 
 class Img_SR_Model(object):
-    def __init__(self, config_dir):
+    def __init__(self, config_dir,scale):
         self.config = self.load_config(config_dir)
         self.device = self.config.device 
         self.model_path = self.config.model_path
-        self.scale = 2
+        self.scale = scale
         # self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         self.model = self.define_model()
         self.model = self.model.to(self.device)
