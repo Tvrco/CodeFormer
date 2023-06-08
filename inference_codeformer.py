@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     test_img_num = len(input_img_list)
     if test_img_num == 0:
-        raise FileNotFoundError('No input image/video is found...\n' 
+        raise FileNotFoundError('No input image/video is found...\n',
             '\tNote that --input_path for video should end with .mp4|.mov|.avi')
 
     # ------------------ set up background upsampler ------------------
