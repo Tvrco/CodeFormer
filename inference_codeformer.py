@@ -55,7 +55,7 @@ def set_realesrgan():
                         'The unoptimized RealESRGAN is slow on CPU. '
                         'If you want to disable it, please remove `--bg_upsampler` and `--face_upsample` in command.',
                         category=RuntimeWarning)
-    return upsampler
+    return upsampler,face_test_upsampler
 
 if __name__ == '__main__':
     # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     # ------------------ set up background upsampler ------------------
     if args.bg_upsampler == 'realesrgan':
-        bg_upsampler = set_realesrgan()
+        bg_upsampler,face_test_upsampler = set_realesrgan()
     else:
         bg_upsampler = None
 
@@ -132,7 +132,7 @@ if __name__ == '__main__':
         if bg_upsampler is not None:
             face_upsampler = face_test_upsampler
         else:
-            face_upsampler = set_realesrgan()
+            _,face_upsampler = set_realesrgan()
     else:
         face_upsampler = None
 
