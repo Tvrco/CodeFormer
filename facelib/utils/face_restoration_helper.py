@@ -369,7 +369,7 @@ class FaceRestoreHelper(object):
         self.restored_faces.append(restored_face)
 
 
-    def paste_faces_to_input_image(self, save_path=None, upsample_img=None, draw_box=True, face_upsampler=None):
+    def paste_faces_to_input_image(self, save_path=None, upsample_img=None, draw_box=False, face_upsampler=None):
         h, w, _ = self.input_img.shape
         h_up, w_up = int(h * self.upscale_factor), int(w * self.upscale_factor)
         print(f"h, w:{h,w}")

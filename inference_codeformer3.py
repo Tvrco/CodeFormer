@@ -237,7 +237,7 @@ if __name__ == '__main__':
         # paste_back
         if not args.has_aligned:
             # upsample the background
-            img_swin = swin_read_image(img)
+            img_swin = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), -1)
             if bg_upsampler is not None:
                 # Now only support RealESRGAN for upsampling background
                 # bg_img = bg_upsampler.enhance(img, outscale=args.upscale)[0]

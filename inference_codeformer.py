@@ -190,6 +190,7 @@ if __name__ == '__main__':
                 print('Grayscale input: True')
             face_helper.cropped_faces = [img]
         else:
+            # ----------------pad image__________________________
             face_helper.read_image(img)
             # get face landmarks for each face
             num_det_faces = face_helper.get_face_landmarks_5(
@@ -237,7 +238,7 @@ if __name__ == '__main__':
                 restored_img = face_helper.paste_faces_to_input_image(upsample_img=bg_img, draw_box=args.draw_box, face_upsampler=face_upsampler)
             else:
                 restored_img = face_helper.paste_faces_to_input_image(upsample_img=bg_img, draw_box=args.draw_box)
-
+            
         # save faces
         for idx, (cropped_face, restored_face) in enumerate(zip(face_helper.cropped_faces, face_helper.restored_faces)):
             # save cropped face
