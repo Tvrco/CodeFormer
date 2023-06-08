@@ -3,6 +3,7 @@ import cv2
 import argparse
 import glob
 import torch
+import numpy as np
 from torchvision.transforms.functional import normalize
 from basicsr.utils import imwrite, img2tensor, tensor2img
 from basicsr.utils.download_util import load_file_from_url
@@ -12,6 +13,7 @@ from facelib.utils.misc import is_gray
 
 from basicsr.utils.registry import ARCH_REGISTRY
 
+
 pretrain_model_url = {
     'restoration': 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/codeformer.pth',
 }
@@ -19,6 +21,7 @@ pretrain_model_url = {
 def set_realesrgan():
     from basicsr.archs.rrdbnet_arch import RRDBNet
     from basicsr.utils.realesrgan_utils import RealESRGANer
+    from swinsr.sr_model import Img_SR_Model
 
     use_half = False
     if torch.cuda.is_available(): # set False in CPU/MPS mode
@@ -34,7 +37,7 @@ def set_realesrgan():
         num_grow_ch=32,
         scale=2,
     )
-    upsampler = RealESRGANer(
+    face_test_upsampler = RealESRGANer(
         scale=2,
         model_path="https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/RealESRGAN_x2plus.pth",
         model=model,
@@ -43,6 +46,8 @@ def set_realesrgan():
         pre_pad=0,
         half=use_half
     )
+    upsampler = Img_SR_Model('./swinsr/config.yaml')
+
 
     if not gpu_is_available():  # CPU
         import warnings
@@ -125,7 +130,7 @@ if __name__ == '__main__':
     # ------------------ set up face upsampler ------------------
     if args.face_upsample:
         if bg_upsampler is not None:
-            face_upsampler = bg_upsampler
+            face_upsampler = face_test_upsampler
         else:
             face_upsampler = set_realesrgan()
     else:
@@ -216,6 +221,7 @@ if __name__ == '__main__':
         # paste_back
         if not args.has_aligned:
             # upsample the background
+            img_swin = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), -1)
             if bg_upsampler is not None:
                 # Now only support RealESRGAN for upsampling background
                 bg_img = bg_upsampler.enhance(img, outscale=args.upscale)[0]
