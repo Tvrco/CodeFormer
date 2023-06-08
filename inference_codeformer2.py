@@ -276,6 +276,8 @@ if __name__ == '__main__':
                 basename = f'{basename}_{args.suffix}'
             save_restore_path = os.path.join(result_root, 'final_results', f'{basename}.png')
             imwrite(restored_img, save_restore_path)
+            save_restore_path = os.path.join(result_root, 'final_results', f'SwinSR_{basename}.png')
+            imwrite(bg_img, save_restore_path)
 
     # save enhanced video
     if input_video:
