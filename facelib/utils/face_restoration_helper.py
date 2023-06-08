@@ -372,7 +372,8 @@ class FaceRestoreHelper(object):
     def paste_faces_to_input_image(self, save_path=None, upsample_img=None, draw_box=False, face_upsampler=None):
         h, w, _ = self.input_img.shape
         h_up, w_up = int(h * self.upscale_factor), int(w * self.upscale_factor)
-
+        print(f"h, w:{h,w}")
+        print(f"h_up, w_up:{h_up, w_up}")
         if upsample_img is None:
             # simply resize the background
             # upsample_img = cv2.resize(self.input_img, (w_up, h_up), interpolation=cv2.INTER_LANCZOS4)
