@@ -12,7 +12,7 @@ from facelib.utils.face_restoration_helper import FaceRestoreHelper
 from facelib.utils.misc import is_gray
 
 from basicsr.utils.registry import ARCH_REGISTRY
-
+import time
 
 pretrain_model_url = {
     'restoration': 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/codeformer.pth',
@@ -183,6 +183,7 @@ if __name__ == '__main__':
         device=device)
 
     # -------------------- start to processing ---------------------
+    start_time = time.time()
     for i, img_path in enumerate(input_img_list):
         # clean all the intermediate results to process the next image
         face_helper.clean_all()
@@ -242,7 +243,8 @@ if __name__ == '__main__':
 
             restored_face = restored_face.astype('uint8')
             face_helper.add_restored_face(restored_face, cropped_face)
-
+        end_time = time.time()
+        print(f"dataprocess+inference_time{end_time-start_time}")
         # paste_back
         if not args.has_aligned:
             # upsample the background
