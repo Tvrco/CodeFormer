@@ -143,7 +143,8 @@ class Img_SR_Model(object):
 
 if __name__=='__main__':
 
-    imgdir = 'test/poster/large_poster'
+    # imgdir = 'test/poster/large_poster'
+    imgdir = '/content/CodeFormer/inputs/input_test'
     config_path = 'config.yaml'
     savedir_poster = 'test/poster/large_poster_sr'
     # savedir_compress = 'test/poster/large_poster_compress'
