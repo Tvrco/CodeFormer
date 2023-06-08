@@ -219,6 +219,8 @@ if __name__ == '__main__':
             if bg_upsampler is not None:
                 # Now only support RealESRGAN for upsampling background
                 bg_img = bg_upsampler.enhance(img, outscale=args.upscale)[0]
+                print(f'原图img_shpe:{img.shape}')
+                print(f'bg_img图shpe:{bg_img.shape}')
             else:
                 bg_img = None
             face_helper.get_inverse_affine(None)
