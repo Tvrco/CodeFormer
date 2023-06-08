@@ -8,8 +8,8 @@ import torch
 import requests
 from omegaconf import OmegaConf
 import yaml
-from models.network_sr import SR_Real_Gan as net
-from utils import util_calculate_psnr_ssim as util
+from .models.network_sr import SR_Real_Gan as net
+from .utils import util_calculate_psnr_ssim as util
 
 import os.path as osp
 from tqdm import tqdm

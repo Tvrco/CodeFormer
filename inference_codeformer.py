@@ -224,7 +224,8 @@ if __name__ == '__main__':
             img_swin = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), -1)
             if bg_upsampler is not None:
                 # Now only support RealESRGAN for upsampling background
-                bg_img = bg_upsampler.enhance(img, outscale=args.upscale)[0]
+                # bg_img = bg_upsampler.enhance(img, outscale=args.upscale)[0]
+                bg_img = bg_upsampler.inference(img_swin)
                 print(f'原图img_shpe:{img.shape}')
                 print(f'图bg_img_shpe:{bg_img.shape}')
             else:
