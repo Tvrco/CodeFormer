@@ -17,7 +17,23 @@ from basicsr.utils.registry import ARCH_REGISTRY
 pretrain_model_url = {
     'restoration': 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/codeformer.pth',
 }
+def swin_read_image(img):
+    """img can be image path or cv2 loaded image."""
+    # self.input_img is Numpy array, (h, w, c), BGR, uint8, [0, 255]
+    if isinstance(img, str):
+        img = cv2.imread(img)
 
+    if np.max(img) > 256:  # 16-bit image
+        img = img / 65535 * 255
+    if len(img.shape) == 2:  # gray image
+        img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+    elif img.shape[2] == 4:  # BGRA image with alpha channel
+        img = img[:, :, 0:3]
+    input_img = img
+    if min(input_img.shape[:2])<512:
+        f = 512.0/min(input_img.shape[:2])
+        input_img = cv2.resize(input_img, (0,0), fx=f, fy=f, interpolation=cv2.INTER_LINEAR)
+    return input_img
 def set_realesrgan():
     from basicsr.archs.rrdbnet_arch import RRDBNet
     from basicsr.utils.realesrgan_utils import RealESRGANer
@@ -221,7 +237,7 @@ if __name__ == '__main__':
         # paste_back
         if not args.has_aligned:
             # upsample the background
-            img_swin = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), -1)
+            img_swin = swin_read_image(img)
             if bg_upsampler is not None:
                 # Now only support RealESRGAN for upsampling background
                 # bg_img = bg_upsampler.enhance(img, outscale=args.upscale)[0]
@@ -258,8 +274,10 @@ if __name__ == '__main__':
         if not args.has_aligned and restored_img is not None:
             if args.suffix is not None:
                 basename = f'{basename}_{args.suffix}'
-            save_restore_path = os.path.join(result_root, 'final_results', f'{basename}.png')
+            save_restore_path = os.path.join(result_root, 'final_results', f'SwinSR_Codeformer0.9_{basename}.png')
             imwrite(restored_img, save_restore_path)
+            save_restore_path = os.path.join(result_root, 'final_results', f'SwinSR_{basename}.png')
+            imwrite(bg_img, save_restore_path)
 
     # save enhanced video
     if input_video:
