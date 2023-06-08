@@ -1,0 +1,2 @@
+model_path: './model_zoo/003_realSR_BSRGAN_DFO_s64w8_SwinIR-M_x2_GAN.pth'  
+device: cpu          # device seting

@@ -1,0 +1,2 @@
+# gunicorn -w 4 -t 50 -b 127.0.0.1:9999 runServiceApp:app
+gunicorn --workers=1  --threads=4 -t 50  -b 127.0.0.1:9999 server:app --access-logfile='./logfile/access.log' --error-logfile='./logfile/error.log'
