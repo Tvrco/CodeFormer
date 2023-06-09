@@ -12,28 +12,12 @@ from facelib.utils.face_restoration_helper import FaceRestoreHelper
 from facelib.utils.misc import is_gray
 
 from basicsr.utils.registry import ARCH_REGISTRY
-
+import time
 
 pretrain_model_url = {
     'restoration': 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/codeformer.pth',
 }
-def swin_read_image(img):
-    """img can be image path or cv2 loaded image."""
-    # self.input_img is Numpy array, (h, w, c), BGR, uint8, [0, 255]
-    if isinstance(img, str):
-        img = cv2.imread(img)
 
-    if np.max(img) > 256:  # 16-bit image
-        img = img / 65535 * 255
-    if len(img.shape) == 2:  # gray image
-        img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-    elif img.shape[2] == 4:  # BGRA image with alpha channel
-        img = img[:, :, 0:3]
-    input_img = img
-    if min(input_img.shape[:2])<512:
-        f = 512.0/min(input_img.shape[:2])
-        input_img = cv2.resize(input_img, (0,0), fx=f, fy=f, interpolation=cv2.INTER_LINEAR)
-    return input_img
 def set_realesrgan():
     from basicsr.archs.rrdbnet_arch import RRDBNet
     from basicsr.utils.realesrgan_utils import RealESRGANer
@@ -62,7 +46,7 @@ def set_realesrgan():
         pre_pad=0,
         half=use_half
     )
-    upsampler = Img_SR_Model('./swinsr/config.yaml')
+    upsampler = Img_SR_Model('./swinsr/config.yaml',4)
 
 
     if not gpu_is_available():  # CPU
@@ -183,6 +167,7 @@ if __name__ == '__main__':
         device=device)
 
     # -------------------- start to processing ---------------------
+    start_time = time.time()
     for i, img_path in enumerate(input_img_list):
         # clean all the intermediate results to process the next image
         face_helper.clean_all()
@@ -206,10 +191,19 @@ if __name__ == '__main__':
                 print('Grayscale input: True')
             face_helper.cropped_faces = [img]
         else:
+            print(f'GT_img_shpe:{img.shape}')
+            img_h,img_w = img.shape[:2]
+            if max(img.shape[:2]) < 512:
+                img = cv2.copyMakeBorder(img, 0, 512-img_h, 0, 512-img_w, cv2.BORDER_CONSTANT, value=(1,1,1))
+            elif img_h<512:
+                img = cv2.copyMakeBorder(img, 0, 512-img_h, 0, 0, cv2.BORDER_CONSTANT, value=(1,1,1))
+            elif img_w<512:
+                img = cv2.copyMakeBorder(img, 0, 0, 0, 512-img_w, cv2.BORDER_CONSTANT, value=(1,1,1))
+
             face_helper.read_image(img)
             # get face landmarks for each face
             num_det_faces = face_helper.get_face_landmarks_5(
-                only_center_face=args.only_center_face, resize=640, eye_dist_threshold=5)
+                only_center_face=args.only_center_face, resize=640, eye_dist_threshold=2)
             print(f'\tdetect {num_det_faces} faces')
             # align and warp each face
             face_helper.align_warp_face()
@@ -233,17 +227,17 @@ if __name__ == '__main__':
 
             restored_face = restored_face.astype('uint8')
             face_helper.add_restored_face(restored_face, cropped_face)
-
+        end_time = time.time()
+        print(f"dataprocess+inference_time{end_time-start_time}")
         # paste_back
         if not args.has_aligned:
             # upsample the background
-            img_swin = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), -1)
+            # img_swin = swin_read_image(img)
             if bg_upsampler is not None:
                 # Now only support RealESRGAN for upsampling background
                 # bg_img = bg_upsampler.enhance(img, outscale=args.upscale)[0]
-                bg_img = bg_upsampler.inference(img_swin)
-                print(f'Swin_reed_img_shpe:{img_swin.shape}')
-                print(f'GT_img_shpe:{img.shape}')
+                bg_img = bg_upsampler.inference(img)
+                print(f'Swin_reed_img_shpe:{img.shape}')
                 print(f'SR_bg_img_shpe:{bg_img.shape}')
             else:
                 bg_img = None
@@ -253,6 +247,7 @@ if __name__ == '__main__':
                 restored_img = face_helper.paste_faces_to_input_image(upsample_img=bg_img, draw_box=args.draw_box, face_upsampler=face_upsampler)
             else:
                 restored_img = face_helper.paste_faces_to_input_image(upsample_img=bg_img, draw_box=args.draw_box)
+            restored_img = restored_img[:img_h*args.upscale,:img_w*args.upscale,:]
 
         # save faces
         for idx, (cropped_face, restored_face) in enumerate(zip(face_helper.cropped_faces, face_helper.restored_faces)):
